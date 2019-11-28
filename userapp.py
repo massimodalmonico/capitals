@@ -1,34 +1,23 @@
 #! /usr/bin/env python3
 
 '''importing the module checks from capitalspackage. 
-inside checks module there are the two functions 
+inside checks module there are the functions load_csv,
 check_capital and check_state'''
 
 from capitalspackage import checks
 
-# sys is necessary to use method sys.argv
+from argparse import ArgumentParser
 
-import sys
+parser = ArgumentParser()
 
+parser.add_argument("name", help = "write name of European country or capital")
+parser.add_argument("-v", "--verbosity", help="incrementally increase output verbosity up to -vv", action="count", default=0)
 
-# store the first parameter passed by the user in chosen_input
-# after checking if exacly one argument has been passed by the user
+args = parser.parse_args()
 
-if len (sys.argv) == 2:
-    chosen_input = sys.argv[1]
+filename = "Capital CSV.csv"
 
+list_of_capitals = checks.load_csv(filename)
 
-# perform the checks on chosen_input and return results
-
-    checks.check_capital(str(chosen_input))
-    checks.check_state(str(chosen_input))
-
-
-# produce meaningful error if argument passed != 1
-
-else: print ("wrong number of arguments" +
-              "\nplease insert exacly one argument: country or capital name")
-
-
-
-
+checks.check_capital(args.name, list_of_capitals, args)
+checks.check_state(args.name, list_of_capitals, args)
