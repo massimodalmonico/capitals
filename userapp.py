@@ -12,6 +12,7 @@ parser = ArgumentParser()
 
 parser.add_argument("name", help = "write name of European country or capital", type= str.upper)
 parser.add_argument("-v", "--verbosity", help="incrementally increase output verbosity up to -vv", action="count", default=0)
+parser.add_argument("-r", "--returnr", help="returns result to store it, instead of printing it", action='store_true')
 
 args = parser.parse_args()
 
