@@ -10,12 +10,12 @@ from argparse import ArgumentParser
 
 parser = ArgumentParser()
 
-parser.add_argument("name", help = "write name of European country or capital")
+parser.add_argument("name", help = "write name of European country or capital", type= str.upper)
 parser.add_argument("-v", "--verbosity", help="incrementally increase output verbosity up to -vv", action="count", default=0)
 
 args = parser.parse_args()
 
-filename = "Capital CSV.csv"
+filename = "capitalcsv"
 
 list_of_capitals = checks.load_csv(filename)
 
