@@ -13,10 +13,13 @@ parser = ArgumentParser()
 parser.add_argument("name", help = "write name of European country or capital", type= str.upper)
 parser.add_argument("-v", "--verbosity", help="incrementally increase output verbosity up to -vv", action="count", default=0)
 parser.add_argument("-r", "--returnr", help="returns result to store it, instead of printing it", action='store_true')
+parser.add_argument("-c", "--choosecsv", help="specify another csv file to use. make sure the format is CHINA;PECHINO/nGIAPPONE;TOKYO", action='store')
 
 args = parser.parse_args()
 
-filename = "capitalcsv"
+if args.choosecsv != None:
+    filename= args.choosecsv
+else: filename = "capitalcsv"
 
 list_of_capitals = checks.load_csv(filename)
 

@@ -15,10 +15,10 @@ def check_capital(state_name, checklist, args):
     if state_name in checklist:
         if args.verbosity >= 2:
             if args.returnr == True:
-                print("args.name is validated by function input_validation then passed to check functions. in those the dictionary passed as checklist is checked, previously loaded by function load_csv. the result returned is > ", checklist[state_name])
+                print("args.name is passed to check functions. in those the dictionary passed as checklist is checked, previously loaded by function load_csv. the result returned is > ", checklist[state_name])
                 return checklist[state_name]
             else:
-                print("args.name is validated by function input_validation then passed to check functions. in those the dictionary passed as checklist is checked, previously loaded by function load_csv. the match found is > ", checklist[state_name])
+                print("args.name is passed to check functions. in those the dictionary passed as checklist is checked, previously loaded by function load_csv. the match found is > ", checklist[state_name])
         elif args.verbosity >= 1:
             if args.returnr == True:
                 print("Returning {}, capital of {}".format(checklist[state_name], state_name))
@@ -40,23 +40,23 @@ def check_state(capital_name, checklist, args):
         if capital == capital_name:
             if args.verbosity >= 2:
                 if args.returnr == True:
-                    print("args.name is validated by function input_validation then passed to check functions. in those the dictionary passed as checklist is checked, previously loaded by function load_csv. the result returned is > ", state)
+                    print("args.name is passed to check functions. in those the dictionary passed as checklist is checked, previously loaded by function load_csv. the result returned is > ", state)
                     return state
                 else:
-                    print("args.name is validated by function input_validation then passed to check functions. in those the dictionary passed in checklist is checked, previously loaded by function load_csv. the match found is > ", state)
+                    print("args.name is passed to check functions. in those the dictionary passed in checklist is checked, previously loaded by function load_csv. the match found is > ", state)
             elif args.verbosity >= 1:
                 if args.returnr == True:
-                    print("Returning {} European state whose capital is {}".format(state, capital_name))
+                    print("Returning {}, the state which capital is {}".format(state, capital_name))
                     return state
                 else:
-                    print("The European state whose capital is {} is {}".format(capital_name, state))
+                    print("{} is the capital of {}".format(capital_name, state))
             else:
                 if args.returnr == True:
                     return state
                 else:
                     print (state)
     if capital_name not in checklist and capital_name not in checklist.values():
-        print("Sorry, {} does not seem to be an European state or capital".
+        print("Sorry, {} does not seem to be a state or capital present in the checklist".
               format(capital_name))
 
 
