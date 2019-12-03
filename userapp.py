@@ -24,8 +24,8 @@ else: filename = "capitalcsv"
 
 list_of_capitals = checks.load_csv(filename)
 
-checks.check_capital(args.name, list_of_capitals, args)
-checks.check_state(args.name, list_of_capitals, args)
+checks.check_capital(list_of_capitals, args)
+checks.check_state(list_of_capitals, args)
 
 if args.extrainfo > 0:
     
@@ -34,5 +34,5 @@ if args.extrainfo > 0:
         checks.get_country_data(base_url, args.name, args)
     else:
         newargs= parser.parse_args([args.name, "--returnr"])
-        countryname= checks.check_state(args.name, list_of_capitals, newargs)
+        countryname= checks.check_state(list_of_capitals, newargs)
         checks.get_country_data(base_url, countryname, args)
