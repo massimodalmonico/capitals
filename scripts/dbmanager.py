@@ -40,7 +40,10 @@ def parse_args():
 def save_new_user(username, password):
     global conn
     global cursor
-    digest = hashlib.sha256(password.encode('utf-8')).hexdigest()
+    salt = str(random.random())
+    digest = salt + password
+    for i in range(100000):
+        digest = hashlib.sha256(digest.encode('utf-8')).hexdigest() 
     row = cursor.execute ("SELECT * FROM users WHERE username=?", (username,))
     conn.commit()
     results = row.fetchall()
@@ -48,7 +51,7 @@ def save_new_user(username, password):
         print("username already in use. please choose another one")
     else:
         cursor.execute("INSERT OR REPLACE INTO users VALUES (?,?,?)",
-                       (username, digest, str(random.random())))
+                       (username, digest, salt))
         conn.commit()
         print ("user {} succesfully added".format(username))
         
@@ -56,7 +59,13 @@ def save_new_user(username, password):
 def check_for_user(username, password):
     global conn
     global cursor
-    digest = hashlib.sha256(password.encode('utf-8')).hexdigest() 
+    salt = cursor.execute("SELECT salt FROM users WHERE username=?",
+                          (username,))
+    conn.commit()
+    salt = salt.fetchall()[0][0]
+    digest = salt + password
+    for i in range(100000):
+        digest = hashlib.sha256(digest.encode('utf-8')).hexdigest()
     rows = cursor.execute("SELECT * FROM users WHERE username=? and digest=?",
                           (username, digest))
     conn.commit()
