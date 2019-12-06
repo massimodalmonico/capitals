@@ -61,19 +61,21 @@ def check_for_user(username, password):
     global cursor
     salt = cursor.execute("SELECT salt FROM users WHERE username=?",
                           (username,))
-    conn.commit()
-    salt = salt.fetchall()[0][0]
+    salt = salt.fetchall()
+    if salt == []:
+        print ("username doesn't exist")
+        quit()
+    salt = salt[0][0]
     digest = salt + password
     for i in range(100000):
         digest = hashlib.sha256(digest.encode('utf-8')).hexdigest()
     rows = cursor.execute("SELECT * FROM users WHERE username=? and digest=?",
                           (username, digest))
-    conn.commit()
     results = rows.fetchall()
     if results:
         return digest
     else:
-        print("User is not present, or password is invalid")
+        print("invalid password")
         quit()
 
 def modify_username(username, password, newusername):
@@ -104,23 +106,23 @@ def delete_username(username, password):
     conn.commit()
     print ("user deleted")
 
-
-open_and_create()
-args = parse_args()
-if args.a and args.p:
-    save_new_user(args.a, args.p)
-elif args.c and args.p:
-    check_for_user(args.c, args.p)
-elif args.m and args.p and args.nu:
-    modify_username(args.m, args.p, args.nu)
-elif args.d and args.p:
-    delete_username(args.d, args.p)
-else: print ("wrong usage")
-
+if __name__ == "__main__":
+    open_and_create()
+    args = parse_args()
+    if args.a and args.p:
+        save_new_user(args.a, args.p)
+    elif args.c and args.p:
+        check_for_user(args.c, args.p)
+    elif args.m and args.p and args.nu:
+        modify_username(args.m, args.p, args.nu)
+    elif args.d and args.p:
+        delete_username(args.d, args.p)
+    else: print ("wrong usage")
+    conn.close()
 # part for printing database, useful for debugging
 '''username = args.a
 rows = cursor.execute("SELECT * FROM users WHERE username=?",
                       (username,))
 results = rows.fetchall()
 print (results)'''
-conn.close()
+
