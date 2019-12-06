@@ -28,21 +28,30 @@ def open_and_create():
 
 def parse_args():
     parser = ArgumentParser()
-    parser.add_argument('-a', help="add a usernamename (requires -p)",
-                        required=False)
+    parser.add_argument('-a', help="add a usernamename (requires -p)")
     parser.add_argument('-p', help="the username password",
                         required=True)
     parser.add_argument('-c', help="check for a usernamename and password") # keep this for testing but later we will just call the method in userapp.py
+    parser.add_argument('-d', help="delete a user (requires -p)")
+    parser.add_argument('-m', help="modify a user's username (requires -p and -nu)")
+    parser.add_argument('-nu', help="new username")
     return parser.parse_args()
 
 def save_new_user(username, password):
     global conn
     global cursor
-    digest = hashlib.sha256(password.encode('utf-8')).hexdigest() 
-    cursor.execute("INSERT OR REPLACE INTO users VALUES (?,?,?)",
-                   (username, digest, str(random.random())))
+    digest = hashlib.sha256(password.encode('utf-8')).hexdigest()
+    row = cursor.execute ("SELECT * FROM users WHERE username=?", (username,))
     conn.commit()
-    print ("user {} succesfully added".format(username))
+    results = row.fetchall()
+    if results:
+        print("username already in use. please choose another one")
+    else:
+        cursor.execute("INSERT OR REPLACE INTO users VALUES (?,?,?)",
+                       (username, digest, str(random.random())))
+        conn.commit()
+        print ("user {} succesfully added".format(username))
+        
 
 def check_for_user(username, password):
     global conn
@@ -53,16 +62,56 @@ def check_for_user(username, password):
     conn.commit()
     results = rows.fetchall()
     if results:
-        print ("ok")
-        return True
+        return digest
     else:
         print("User is not present, or password is invalid")
+        quit()
+
+def modify_username(username, password, newusername):
+    global conn
+    global cursor
+    check_digest = check_for_user(username, password)
+    row = cursor.execute ("SELECT * FROM users WHERE username=?", (newusername,))
+    conn.commit()
+    results = row.fetchall()
+    if results:
+        print("username already in use. please choose another one")
+    else:
+        cursor.execute('''UPDATE users
+                          SET username =?
+                          WHERE username=? AND digest=?''',
+                          (newusername, username, check_digest))
+        conn.commit()
+        print ("username modified succesfully into", newusername)
+
+
+def delete_username(username, password):
+    global conn
+    global cursor
+    check_digest = check_for_user(username, password)
+    cursor.execute('''DELETE FROM users
+                          WHERE username=? AND digest=?''',
+                          (username, check_digest))
+    conn.commit()
+    print ("user deleted")
+
 
 open_and_create()
 args = parse_args()
-if args.a and args.p and args.c == None:
+if args.a and args.p:
     save_new_user(args.a, args.p)
-elif args.c and args.p and args.a == None:
+elif args.c and args.p:
     check_for_user(args.c, args.p)
-else: print ("wrong usage. don't use -a and -c together")
+elif args.m and args.p and args.nu:
+    modify_username(args.m, args.p, args.nu)
+elif args.d and args.p:
+    delete_username(args.d, args.p)
+else: print ("wrong usage")
+
+# part for printing database, useful for debugging
+'''username = args.a
+rows = cursor.execute("SELECT * FROM users WHERE username=?",
+                      (username,))
+results = rows.fetchall()
+print (results)'''
 conn.close()
