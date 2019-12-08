@@ -21,7 +21,7 @@ def open_and_create():
                       (username CHAR(256),
                        digest CHAR(256),
                        salt CHAR(256),
-                       PRIMARY KEY (digest))''')
+                       PRIMARY KEY (username))''')
         conn.commit()
     except sqlite3.OperationalError:
         return
