@@ -33,8 +33,9 @@ def parse_args():
                         required=True)
     parser.add_argument('-c', help="check for a usernamename and password") # keep this for testing but later we will just call the method in userapp.py
     parser.add_argument('-d', help="delete a user (requires -p)")
-    parser.add_argument('-m', help="modify a user's username (requires -p and -nu)")
+    parser.add_argument('-m', help="modify a user's username (requires -p and -nu) or password (requires -p and -np)")
     parser.add_argument('-nu', help="new username")
+    parser.add_argument('-np', help="new password")
     return parser.parse_args()
 
 def save_new_user(username, password):
@@ -67,7 +68,7 @@ def check_for_user(username, password):
         quit()
     salt = salt[0][0]
     digest = salt + password
-    for i in range(100000):
+    for i in range(1000000):
         digest = hashlib.sha256(digest.encode('utf-8')).hexdigest()
     rows = cursor.execute("SELECT * FROM users WHERE username=? and digest=?",
                           (username, digest))
@@ -95,6 +96,23 @@ def modify_username(username, password, newusername):
         conn.commit()
         print ("username modified succesfully into", newusername)
 
+def modify_pw(username, password, newpw):
+    global conn
+    global cursor
+    check_digest = check_for_user(username, password)
+    salt = cursor.execute("SELECT salt FROM users WHERE username=?",
+                          (username,))
+    salt = salt.fetchall()[0][0]
+    new_digest = salt + newpw
+    for i in range(1000000):
+        new_digest = hashlib.sha256(new_digest.encode('utf-8')).hexdigest()
+    cursor.execute('''UPDATE users
+                          SET digest =?
+                          WHERE username=?''',
+                          (new_digest, username))
+    conn.commit()
+    print ("password modified succesfully into", newpw)
+
 
 def delete_username(username, password):
     global conn
@@ -117,9 +135,12 @@ if __name__ == "__main__":
         modify_username(args.m, args.p, args.nu)
     elif args.d and args.p:
         delete_username(args.d, args.p)
+    elif args.m and args.p and args.np:
+        modify_pw(args.m, args.p, args.np)
     else: print ("wrong usage")
     conn.close()
-# part for printing database, useful for debugging
+
+# code for printing database, useful for debugging
 '''username = args.a
 rows = cursor.execute("SELECT * FROM users WHERE username=?",
                       (username,))
