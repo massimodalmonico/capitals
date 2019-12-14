@@ -8,8 +8,10 @@ def load_csv(filename):
     list_of_capitals = {}
     with open(filename) as csvfile:
         reader = csv.reader(csvfile, delimiter=';')
-        for row in reader:
-            list_of_capitals[row[0]] = row[1]
+        try:
+            for row in reader:
+                list_of_capitals[row[0]] = row[1]
+        except IndexError: pass
 
     return list_of_capitals
 
