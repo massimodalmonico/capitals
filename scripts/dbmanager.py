@@ -8,8 +8,13 @@ from argparse import ArgumentParser
 # connect to the passwdb file which contains the database for user access.
 # if the file doesn't exist yet, it's created in the current repository
 
+
+# global variables
+
 conn = None
 cursor = None
+
+# function to open database or create it if it doens't exist yet
 
 
 def open_and_create():
@@ -17,6 +22,9 @@ def open_and_create():
     global cursor
     conn = sqlite3.connect('passw.db')
     cursor = conn.cursor()
+
+# this tries to create a new database
+
     try:
         cursor.execute('''CREATE TABLE users
                       (username CHAR(256),
@@ -24,8 +32,13 @@ def open_and_create():
                        salt CHAR(256),
                        PRIMARY KEY (username))''')
         conn.commit()
+
+# exception: database already exists
+
     except sqlite3.OperationalError:
         return
+
+# define arguments for usage
 
 
 def parse_args():
@@ -45,12 +58,21 @@ def parse_args():
 def save_new_user(username, password):
     global conn
     global cursor
+
+# add salt to each new user to compute password hash
+
     salt = str(random.random())
     digest = salt + password
+
+# hash is computed 100000 times repeatedly
+
     for i in range(100000):
         digest = hashlib.sha256(digest.encode('utf-8')).hexdigest()
     row = cursor.execute("SELECT * FROM users WHERE username=?", (username,))
     conn.commit()
+
+# checks if username is already in use
+
     results = row.fetchall()
     if results:
         print("username already in use. please choose another one")
@@ -60,20 +82,31 @@ def save_new_user(username, password):
         conn.commit()
         print ("user {} succesfully added".format(username))
 
+# function used for checking username and password
+
 
 def check_for_user(username, password):
     global conn
     global cursor
+
+# first of all, get salt from username (if this exists)
+
     salt = cursor.execute("SELECT salt FROM users WHERE username=?",
                           (username,))
     salt = salt.fetchall()
     if salt == []:
         print ("username doesn't exist")
         quit()
+
+# compute the hash with password inserted + salt retrieved from database
+
     salt = salt[0][0]
     digest = salt + password
     for i in range(100000):
         digest = hashlib.sha256(digest.encode('utf-8')).hexdigest()
+
+# check whether digests correspond
+
     rows = cursor.execute("SELECT * FROM users WHERE username=? and digest=?",
                           (username, digest))
     results = rows.fetchall()
@@ -87,13 +120,22 @@ def check_for_user(username, password):
 def modify_username(username, password, newusername):
     global conn
     global cursor
+
+# first check username and password
+
     check_digest = check_for_user(username, password)
+
+# check if new username is already in use
+
     row = cursor.execute(
         "SELECT * FROM users WHERE username=?", (newusername,))
     conn.commit()
     results = row.fetchall()
     if results:
         print("username already in use. please choose another one")
+
+# modify username
+
     else:
         cursor.execute('''UPDATE users
                           SET username =?
@@ -106,13 +148,22 @@ def modify_username(username, password, newusername):
 def modify_pw(username, password, newpw):
     global conn
     global cursor
+
+# first check username and password
+
     check_digest = check_for_user(username, password)
+
+# compute new digest
+
     salt = cursor.execute("SELECT salt FROM users WHERE username=?",
                           (username,))
     salt = salt.fetchall()[0][0]
     new_digest = salt + newpw
     for i in range(100000):
         new_digest = hashlib.sha256(new_digest.encode('utf-8')).hexdigest()
+
+# save new password (digest)
+
     cursor.execute('''UPDATE users
                           SET digest =?
                           WHERE username=?''',
@@ -124,12 +175,20 @@ def modify_pw(username, password, newpw):
 def delete_username(username, password):
     global conn
     global cursor
+
+# first check username and password
+
     check_digest = check_for_user(username, password)
+
+# delete user
+
     cursor.execute('''DELETE FROM users
                           WHERE username=? AND digest=?''',
                    (username, check_digest))
     conn.commit()
     print ("user deleted")
+
+# calling right functions at the right time
 
 
 if __name__ == "__main__":

@@ -1,6 +1,10 @@
+# import useful libraries
+
 import csv
 import requests
 import json
+
+# function to load .csv file into memory as a dictionary
 
 
 def load_csv(filename):
@@ -8,10 +12,14 @@ def load_csv(filename):
     list_of_capitals = {}
     with open(filename) as csvfile:
         reader = csv.reader(csvfile, delimiter=';')
+
+# handle errors such as wrong format file or empty file
+
         try:
             for row in reader:
                 list_of_capitals[row[0]] = row[1]
-        except IndexError: pass
+        except IndexError:
+            pass
 
     return list_of_capitals
 
@@ -21,23 +29,32 @@ def load_csv(filename):
 
 def check_capital(checklist, args):
     if args.name in checklist:
+
+        # --verbosity = 2
+
         if args.verbosity >= 2:
+
+            # --returnr
+
             if args.returnr:
-                print('''args.name is passed to check
-                      functions. in those the dictionary
-                      passed as checklist is checked,
-                      previously loaded by function load_csv.
-                      the result returned is > ''',
+                print('''args.name is passed to check functions.
+in those the dictionary passed as checklist is checked,
+previously loaded by function load_csv.
+the result returned is > ''',
                       checklist[args.name])
                 return checklist[args.name]
             else:
-                print(
-                    '''args.name is passed to check functions.
-                       in those the dictionary passed as checklist
-                       is checked, previously loaded by function
-                       load_csv. the match found is > ''',
-                    checklist[args.name])
+                print('''args.name is passed to check functions.
+in those the dictionary passed as checklist is checked,
+previously loaded by function load_csv.
+the match found is > ''', checklist[args.name])
+
+# --verbosity = 1
+
         elif args.verbosity >= 1:
+
+            # --returnr
+
             if args.returnr:
                 print("Returning {}, capital of {}".format(
                     checklist[args.name], args.name))
@@ -45,7 +62,13 @@ def check_capital(checklist, args):
             else:
                 print("The capital of {} is {}".format(args.name,
                                                        checklist[args.name]))
+
+# --verbosity = 0
+
         else:
+
+            # --returnr
+
             if args.returnr:
                 return checklist[args.name]
             else:
@@ -53,25 +76,39 @@ def check_capital(checklist, args):
 
 
 # function to check if the state inserted is present in the list
+
+
 def check_state(checklist, args):
 
     for state, capital in checklist.items():
         if capital == args.name:
+
+            # --verbosity = 2
+
             if args.verbosity >= 2:
+
+                # --returnr
+
                 if args.returnr:
                     print(
                         '''args.name is passed to check functions.
-                           in those the dictionary passed as checklist
-                           is checked, previously loaded by function load_csv.
-                           the result returned is > ''',
+in those the dictionary passed as checklist
+is checked, previously loaded by function load_csv.
+the result returned is > ''',
                         state)
                     return state
                 else:
                     print('''args.name is passed to check functions.
-                          in those the dictionary passed in checklist is
-                          checked, previously loaded by function load_csv.
-                          the match found is > ''', state)
+in those the dictionary passed in checklist is
+checked, previously loaded by function load_csv.
+the match found is > ''', state)
+
+# --vebosity = 1
+
             elif args.verbosity >= 1:
+
+                # --returnr
+
                 if args.returnr:
                     print(
                         "Returning {}, the state which capital is {}".format(
@@ -79,35 +116,63 @@ def check_state(checklist, args):
                     return state
                 else:
                     print("{} is the capital of {}".format(args.name, state))
+
+# --verbosity = 0
+
             else:
+
+                # --returnr
+
                 if args.returnr:
                     return state
                 else:
                     print (state)
+
+# state or capital name not found
+
     if args.name not in checklist and args.name not in checklist.values():
         print('''Sorry, {} does not seem to be a state or capital present
-              in the checklist'''. format(args.name))
+in the checklist'''. format(args.name))
 
 
 # function to fetch extra information about countries from REST api
+
 def get_country_data(base_url, countryname, args):
+
+    # define url as base_url + filters (country name)
 
     url = base_url.format(countryname)
     response = requests.get(url)
+
+# check if there is positive response from request
+
     if response.status_code == 200:
         result = json.loads(response.text)  # parse json to dict
 
+# --extrainfo = 4
+
         if args.extrainfo >= 4:
 
+            # --verbosity = 2
+
             if args.verbosity >= 2:
+
+                # --returnr
+
                 if args.returnr:
                     print ('''succesfully fetched api data from REST
-                           Countries. returning list with population,
-                           area (km^2), currencies list and languages
-                           list of {}'''.format(countryname))
+Countries. returning list with population,
+area (km^2), currencies list and languages
+list of {}'''.format(countryname))
+
+# create lists for appending results
+
                     elist = []
-                    elistc = []
-                    elistl = []
+                    elistc = []  # currencies may be more than one
+                    elistl = []  # languages may be more than one
+
+# append results to lists
+
                     for r in result:
                         elist.append(r['population'])
                         elist.append(r['area'])
@@ -118,6 +183,9 @@ def get_country_data(base_url, countryname, args):
                     elist.append(elistc)
                     elist.append(elistl)
                     return elist
+
+# print instead of return
+
                 else:
                     print ("succesfully fetched api data from REST Countries")
                     elistc = []
@@ -133,10 +201,15 @@ def get_country_data(base_url, countryname, args):
                             elistl.append(r['languages'][n]['name'])
                         print (countryname, "'s languages= ", elistl)
 
+# --verbosity = 1
+
             elif args.verbosity >= 1:
+
+                # --returnr
+
                 if args.returnr:
                     print ('''returning list with population, area (km^2),
-                           currencies list and languages list of {}'''.format(
+currencies list and languages list of {}'''.format(
                         countryname))
                     elist = []
                     elistc = []
@@ -152,6 +225,9 @@ def get_country_data(base_url, countryname, args):
                     elist.append(elistl)
                     print (elist)
                     return elist
+
+# print instead of return
+
                 else:
                     elistc = []
                     elistl = []
@@ -165,7 +241,12 @@ def get_country_data(base_url, countryname, args):
                             elistl.append(r['languages'][n]['name'])
                         print (countryname, "'s languages= ", elistl)
 
+# --verbosity = 0
+
             else:
+
+                # --returnr
+
                 if args.returnr:
                     elist = []
                     elistc = []
@@ -180,6 +261,9 @@ def get_country_data(base_url, countryname, args):
                     elist.append(elistc)
                     elist.append(elistl)
                     return elist
+
+# print instead of return
+
                 else:
                     elistc = []
                     elistl = []
@@ -193,12 +277,19 @@ def get_country_data(base_url, countryname, args):
                             elistl.append(r['languages'][n]['name'])
                         print (elistl)
 
+# --extrainfo = 3
+
         elif args.extrainfo >= 3:
+
+            # --verbosity = 2
+
             if args.verbosity >= 2:
+                # --returnr
+
                 if args.returnr:
                     print ('''succesfully fetched api data from REST
-                           Countries. returning list with population, area
-                           (km^2) and currencies list of {}'''.format
+Countries. returning list with population, area
+(km^2) and currencies list of {}'''.format
                            (countryname))
                     elist = []
                     elistc = []
@@ -209,6 +300,9 @@ def get_country_data(base_url, countryname, args):
                             elistc.append(r['currencies'][n]['name'])
                     elist.append(elistc)
                     return elist
+
+# print instead of return
+
                 else:
                     print ("succesfully fetched api data from REST Countries")
                     elistc = []
@@ -218,10 +312,16 @@ def get_country_data(base_url, countryname, args):
                         for n in range(len(r['currencies'])):
                             elistc.append(r['currencies'][n]['name'])
                         print (countryname, "'s currencies= ", elistc)
+
+# --verbosity = 1
+
             elif args.verbosity >= 1:
+
+                # --returnr
+
                 if args.returnr:
                     print ('''returning list with population, area (km^2)
-                           and currencies list of {}'''.format(countryname))
+and currencies list of {}'''.format(countryname))
                     elist = []
                     elistc = []
                     for r in result:
@@ -232,6 +332,9 @@ def get_country_data(base_url, countryname, args):
                     elist.append(elistc)
                     print (elist)
                     return elist
+
+# print instead of return
+
                 else:
                     elistc = []
                     for r in result:
@@ -241,7 +344,12 @@ def get_country_data(base_url, countryname, args):
                             elistc.append(r['currencies'][n]['name'])
                         print (countryname, "'s currencies= ", elistc)
 
+# --verbosity = 0
+
             else:
+
+                # --returnr
+
                 if args.returnr:
                     elist = []
                     elistc = []
@@ -252,6 +360,9 @@ def get_country_data(base_url, countryname, args):
                             elistc.append(r['currencies'][n]['name'])
                     elist.append(elistc)
                     return elist
+
+# print instead of return
+
                 else:
                     elistc = []
                     for r in result:
@@ -261,18 +372,28 @@ def get_country_data(base_url, countryname, args):
                             elistc.append(r['currencies'][n]['name'])
                         print (elistc)
 
+# --extrainfo = 2
+
         elif args.extrainfo >= 2:
+
+            # --verbosity = 2
+
             if args.verbosity >= 2:
+
+                # --returnr
+
                 if args.returnr:
                     print ('''succesfully fetched api data from REST
-                           Countries. returning list with population and area
-                           (km^2) of {}'''.format(
+Countries. returning list with population and area (km^2) of {}'''.format(
                         countryname))
                     elist = []
                     for r in result:
                         elist.append(r['population'])
                         elist.append(r['area'])
                     return elist
+
+# print instead of return
+
                 else:
                     print ("succesfully fetched api data from REST Countries")
                     for r in result:
@@ -281,7 +402,13 @@ def get_country_data(base_url, countryname, args):
                             "'s population = ",
                             r['population'])
                         print (countryname, "'s area (km^2) = ", r['area'])
+
+# --verbosity = 1
+
             elif args.verbosity >= 1:
+
+                # --returnr
+
                 if args.returnr:
                     print ('''returning list with population and area (km^2)
                            of {}'''.format(countryname))
@@ -291,47 +418,84 @@ def get_country_data(base_url, countryname, args):
                         elist.append(r['area'])
                     print (elist)
                     return elist
+
+# print instead of return
+
                 else:
                     for r in result:
                         print (countryname, "'s population= ", r['population'])
                         print (countryname, "'s area (km^2) = ", r['area'])
+
+# --verbosity = 0
+
             else:
+
+                # --returnr
+
                 if args.returnr:
                     elist = []
                     for r in result:
                         elist.append(r['population'])
                         elist.append(r['area'])
                     return elist
+
+# print instead of return
+
                 else:
                     for r in result:
                         print (r['population'])
                         print (r['area'], " km^2")
 
+# --extrainfo = 1
+
         elif args.extrainfo >= 1:
+
+            # --verbosity = 2
+
             if args.verbosity >= 2:
+
+                # --returnr
+
                 if args.returnr:
                     print ('''succesfully fetched api data from REST
-                           Countries. Returning population of {}'''.format(
+Countries. Returning population of {}'''.format(
                         countryname))
                     for r in result:
                         return r['population']
+
+# print instead of return
+
                 else:
                     print ("succesfully fetched api data from REST Countries")
                     for r in result:
-                        print (
-                            countryname,
-                            "'s population = ",
-                            r['population'])
+                        print (countryname, "'s population = ",
+                               r['population'])
+
+# --verbosity = 1
+
             elif args.verbosity >= 1:
+
+                # --returnr
+
                 if args.returnr:
                     print ("returning population of {}".format(countryname))
                     for r in result:
                         print (r['population'])
                         return r['population']
+
+# print instead of return
+
                 else:
                     for r in result:
-                        print (countryname, "'s populatio = ", r['population'])
+                        print (countryname, "'s population = ",
+                               r['population'])
+
+# --verbosity = 0
+
             else:
+
+                # --returnr
+
                 if args.returnr:
                     for r in result:
                         return r['population']
@@ -340,5 +504,5 @@ def get_country_data(base_url, countryname, args):
                         print (r['population'])
     else:
         print ('''sorry, something went wrong with the API request. check your
-               internet connection and country/capital name and try again''')
+internet connection and country/capital name and try again''')
         raise requests.exceptions.RequestException
