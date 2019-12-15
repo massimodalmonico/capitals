@@ -14,10 +14,8 @@ parser.add_argument(
     "name",
     help="write name of European country or capital",
     type=str.upper)
-parser.add_argument('-p', '--password', help="user's password (required)",
-                    required=True)
-parser.add_argument('-u', '--username', help="username (required)",
-                    required=True)
+parser.add_argument('-p', '--password', help="user's password (required)")
+parser.add_argument('-u', '--username', help="username (required)")
 parser.add_argument(
     "-v",
     "--verbosity",
@@ -46,6 +44,11 @@ parser.add_argument(
 
 
 args = parser.parse_args()
+
+if args.username is None or args.password is None:
+    print ('''username and password are required.
+you may create a new user with bdmanager.py''')
+    quit()
 
 dbmanager.open_and_create()
 dbmanager.check_for_user(args.username, args.password)
