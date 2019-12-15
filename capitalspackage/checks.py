@@ -87,6 +87,7 @@ def check_state(checklist, args):
     if args.name not in checklist and args.name not in checklist.values():
         print('''Sorry, {} does not seem to be a state or capital present
               in the checklist'''. format(args.name))
+        quit()
 
 
 # function to fetch extra information about countries from REST api
