@@ -5,13 +5,17 @@ import json
 
 def load_csv(filename):
 
+    '''loads file passed as filename (path of the file) and
+    returns a dictionary. intended for loading csv files'''
+
     list_of_capitals = {}
     with open(filename) as csvfile:
         reader = csv.reader(csvfile, delimiter=';')
         try:
             for row in reader:
                 list_of_capitals[row[0]] = row[1]
-        except IndexError: pass
+        except IndexError:
+            pass
 
     return list_of_capitals
 
@@ -20,6 +24,11 @@ def load_csv(filename):
 
 
 def check_capital(checklist, args):
+
+    '''checks if the name passed from user as args.name is a capital
+    present in the checklist and prints or returns the corresponding
+    retult. also handles --verbosity and --returnr args'''
+
     if args.name in checklist:
         if args.verbosity >= 2:
             if args.returnr:
@@ -53,7 +62,12 @@ def check_capital(checklist, args):
 
 
 # function to check if the state inserted is present in the list
+
 def check_state(checklist, args):
+
+    '''checks if the name passed from user as args.name is a state
+    present in the checklist and prints or returns the corresponding
+    retult. also handles --verbosity and --returnr args'''
 
     for state, capital in checklist.items():
         if capital == args.name:
@@ -91,7 +105,12 @@ def check_state(checklist, args):
 
 
 # function to fetch extra information about countries from REST api
+
 def get_country_data(base_url, countryname, args):
+
+    '''handles different levels of -e arg to return or print additional
+    information about the chosen country: population, area, currencies,
+    languages'''
 
     url = base_url.format(countryname)
     response = requests.get(url)
